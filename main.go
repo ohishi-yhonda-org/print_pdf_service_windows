@@ -137,9 +137,12 @@ func printPDFHandler(w http.ResponseWriter, r *http.Request) {
 	tempDir, err := os.Getwd() // 現在の作業ディレクトリ
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to get current directory: %v", err), http.StatusInternalServerError)
-		fmt.Printf("Error: Failed to get current directory: %v\n", err) //
+		fmt.Printf("Error: Failed to get current directory: %v\n", err)
+		elog.Error(1, fmt.Sprintf("Failed to get current directory: %v", err)) // イベントログに追加
 		return
 	}
+
+	elog.Info(1, fmt.Sprintf("Using current directory as tempDir: %s", tempDir)) // イベントログに追加
 
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to get current directory: %v", err), http.StatusInternalServerError)
