@@ -41,7 +41,7 @@ jobs:
         # Goサービス実行ファイルをビルド
         # -ldflags="-H windowsgui" でコンソールウィンドウを非表示にする
         # -o で出力ファイル名を指定
-        go build -ldflags="-H windowsgui" -o MyGoHTTPServer.exe main.go
+        go build -ldflags="-H windowsgui" -o MyGoHTTPServer.exe
       shell: powershell # PowerShellシェルを使用
 
     - name: Compress Executable
