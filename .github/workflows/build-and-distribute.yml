@@ -13,6 +13,14 @@ jobs:
       contents: write # リリースアセットのアップロードのために必要
 
     steps:
+    - name: Stop and Uninstall previous service (if running)
+      run: |
+        # 以前のサービスが実行中の場合は停止してアンインストール
+        if (Get-Service -Name MyGoHTTPServer -ErrorAction SilentlyContinue) {
+        Stop-Service -Name MyGoHTTPServer -Force
+        sc.exe delete MyGoHTTPServer
+        }
+      shell: powershell # PowerShellシェルを使用
     - name: Checkout code
       uses: actions/checkout@v4 # リポジトリのコードをチェックアウト
 

@@ -153,8 +153,8 @@ func printPDFHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	tempFile.Close()                                                                                           // ここで明示的にファイルを閉じる
-	elog.Info(1, fmt.Sprintf("Successfully saved %d bytes to temporary file: %s", bytesWritten, tempFilePath)) // イベントログに追加
+	tempFile.Close()                                                                    // ここで明示的にファイルを閉じる
+	elog.Info(1, fmt.Sprintf("Successfully saved to temporary file: %s", tempFilePath)) // イベントログに追加
 
 	fmt.Printf("Attempting to print document '%s' to printer '%s'.\n", tempFilePath, printerName) // デバッグ用ログ
 
