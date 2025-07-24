@@ -21,6 +21,14 @@ jobs:
         sc.exe delete MyGoHTTPServer
         }
       shell: powershell # PowerShellシェルを使用
+    - name: stop process
+      run: |
+        # 以前のプロセスが実行中の場合は停止
+        $processes = Get-Process -Name MyGoHTTPServer -ErrorAction SilentlyContinue
+        if ($processes) {
+          Stop-Process -Name MyGoHTTPServer -Force
+        }
+      shell: powershell # PowerShellシェルを使用
     - name: Checkout code
       uses: actions/checkout@v4 # リポジトリのコードをチェックアウト
 
