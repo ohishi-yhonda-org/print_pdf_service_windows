@@ -43,16 +43,17 @@ jobs:
         Compress-Archive -Path MyGoHTTPServer.exe -DestinationPath my-go-http-service-windows.zip
       shell: powershell # PowerShellシェルを使用
 
-    - name: Upload Release Asset
-      id: upload-release-asset # 後続のステップでこのステップの出力を参照するためにIDを設定
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # リポジトリトークン (自動で提供される)
+    - name: Create Release and Upload Asset
+      uses: softprops/action-gh-release@v1 # リリースを作成し、アセットをアップロードするアクション
+      if: startsWith(github.ref, 'refs/tags/') # タグがプッシュされた場合のみ実行
       with:
-        upload_url: ${{ github.event.release.upload_url }} # リリースアセットのアップロードURL
-        asset_path: ./my-go-http-service-windows.zip # アップロードするZIPファイル
-        asset_name: my-go-http-service-windows-${{ github.ref_name }}.zip # アセット名 (タグ名を含む)
-        asset_content_type: application/zip # コンテンツタイプ
+        tag_name: ${{ github.ref_name }} # タグ名をリリース名として使用
+        name: Release ${{ github.ref_name }} # リリース名
+        body: Automated release from GitHub Actions. # リリース説明
+        draft: false # ドラフトリリースではない
+        prerelease: false # プレリリースではない
+        files: |
+          ./my-go-http-service-windows.zip # アップロードするZIPファイル
 
     # オプション: GitHub Actionsのアーティファクトとしてもアップロードしたい場合
     # - name: Upload Artifact (Optional)
