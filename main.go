@@ -202,7 +202,7 @@ func printPDF(documentPath, printerName string) error {
 	// cmd := exec.Command(adobeReaderPath, "/t", documentPath, quotedPrinterName) // すべて引用符付きの引数を渡す
 	cmd := exec.Command(executablePath, documentPath, quotedPrinterName) // すべて引用符付きの引数を渡す
 
-	log.Printf("印刷コマンドを構築しました: %s %s %s %s", cmd.Args[0], cmd.Args[1], cmd.Args[2], cmd.Args[3])           // ログ出力
+	log.Printf("印刷コマンドを構築しました: %s %s %s", cmd.Args[0], cmd.Args[1], cmd.Args[2])                           // ログ出力
 	log.Printf("印刷コマンドを実行しています: %s %s %s %s", adobeReaderPath, "/t", documentPath, printerName)            // ログ出力
 	fmt.Printf("Executing print command: %s %s %s %s\n", adobeReaderPath, "/t", documentPath, printerName) // デバッグ用ログ
 
