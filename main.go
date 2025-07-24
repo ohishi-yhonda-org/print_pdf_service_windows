@@ -132,7 +132,20 @@ func printPDFHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 一時ファイルを作成し、アップロードされたPDFを書き込みます。
 	// サービス実行アカウントが書き込み権限を持つ一時ディレクトリを使用します。
-	tempDir := os.TempDir() // システムの一時ディレクトリ
+	// tempDir := os.TempDir() // システムの一時ディレクトリ
+	//tempDir にcurrent directoryを使用する場合
+	tempDir, err := os.Getwd() // 現在の作業ディレクトリ
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get current directory: %v", err), http.StatusInternalServerError)
+		fmt.Printf("Error: Failed to get current directory: %v\n", err) //
+		return
+	}
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get current directory: %v", err), http.StatusInternalServerError)
+		fmt.Printf("Error: Failed to get current directory: %v\n", err) // デバッグ用ログ
+		return
+	}
 	tempFilePath := filepath.Join(tempDir, handler.Filename)
 	fmt.Printf("Saving uploaded file to temporary path: %s\n", tempFilePath)                          // デバッグ用ログ
 	elog.Info(1, fmt.Sprintf("Attempting to save uploaded file to temporary path: %s", tempFilePath)) // イベントログに追加
