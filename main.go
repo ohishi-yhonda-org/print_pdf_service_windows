@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"bytes"         // bytes.Bufferのために追加
 	"os/exec"       // 外部コマンド実行のために追加
 	"path/filepath" // パス操作のために追加
 
@@ -206,6 +207,10 @@ func printPDF(documentPath, printerName string) error {
 	// /t: 印刷ダイアログを表示せずに指定されたプリンターにファイルを印刷します。
 	// /h: アプリケーションウィンドウを非表示にします。
 	cmd := exec.Command(adobeReaderPath, "/t", documentPath, printerName)
+	// ここが重要！外部コマンドの標準出力と標準エラー出力をキャプチャする
+	var stdoutBuf, stderrBuf bytes.Buffer
+	cmd.Stdout = &stdoutBuf
+	cmd.Stderr = &stderrBuf
 
 	// コマンドの標準出力と標準エラー出力をキャプチャしてデバッグに役立てることもできますが、
 	// ここではシンプルに実行します。
@@ -216,8 +221,19 @@ func printPDF(documentPath, printerName string) error {
 
 	// コマンドを実行し、完了を待ちます。
 	err := cmd.Run()
+
+	// コマンド実行後のStdout/Stderrをイベントログに出力
+	if stdoutBuf.Len() > 0 {
+		elog.Info(1, fmt.Sprintf("Print command Stdout: %s", stdoutBuf.String()))
+		fmt.Printf("Print command Stdout: %s\n", stdoutBuf.String()) // コンソールにも
+	}
+	if stderrBuf.Len() > 0 {
+		elog.Error(1, fmt.Sprintf("Print command Stderr: %s", stderrBuf.String())) // ここにエラーが出れば、その内容を！
+		fmt.Printf("Print command Stderr: %s\n", stderrBuf.String())               // コンソールにも
+	}
+
 	if err != nil {
-		elog.Error(1, fmt.Sprintf("Command execution failed: %v", err)) // イベントログに追加
+		elog.Error(1, fmt.Sprintf("Command execution failed: %v", err))
 		return fmt.Errorf("command execution failed: %w", err)
 	}
 
