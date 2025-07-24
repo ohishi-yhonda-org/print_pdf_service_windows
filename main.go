@@ -94,7 +94,8 @@ func startHTTPServer() {
 // printPDFHandler は /print-pdf エンドポイントのリクエストを処理します。
 // POST multipart/form-data のボディからPDFファイルとプリンター名を受け取り、PDFを印刷します。
 func printPDFHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received request for /print-pdf.") // デバッグ用ログ
+	fmt.Println("Received request for /print-pdf.")  // デバッグ用ログ
+	elog.Info(1, "Received request for /print-pdf.") // イベントログにも出力
 
 	// POSTメソッド以外は許可しない
 	if r.Method != http.MethodPost {
@@ -132,7 +133,8 @@ func printPDFHandler(w http.ResponseWriter, r *http.Request) {
 	// サービス実行アカウントが書き込み権限を持つ一時ディレクトリを使用します。
 	tempDir := os.TempDir() // システムの一時ディレクトリ
 	tempFilePath := filepath.Join(tempDir, handler.Filename)
-	fmt.Printf("Saving uploaded file to temporary path: %s\n", tempFilePath) // デバッグ用ログ
+	fmt.Printf("Saving uploaded file to temporary path: %s\n", tempFilePath)                          // デバッグ用ログ
+	elog.Info(1, fmt.Sprintf("Attempting to save uploaded file to temporary path: %s", tempFilePath)) // イベントログに追加
 
 	tempFile, err := os.Create(tempFilePath)
 	if err != nil {
@@ -146,10 +148,13 @@ func printPDFHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = io.Copy(tempFile, file)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to save uploaded file: %v", err), http.StatusInternalServerError)
-		fmt.Printf("Error: Failed to save uploaded file: %v\n", err) // デバッグ用ログ
+		fmt.Printf("Error: Failed to save uploaded file: %v\n", err)                                     // デバッグ用ログ
+		elog.Error(1, fmt.Sprintf("Error: Failed to save uploaded file to '%s': %v", tempFilePath, err)) // イベントログに追加
+
 		return
 	}
-	tempFile.Close() // ここで明示的にファイルを閉じる
+	tempFile.Close()                                                                                           // ここで明示的にファイルを閉じる
+	elog.Info(1, fmt.Sprintf("Successfully saved %d bytes to temporary file: %s", bytesWritten, tempFilePath)) // イベントログに追加
 
 	fmt.Printf("Attempting to print document '%s' to printer '%s'.\n", tempFilePath, printerName) // デバッグ用ログ
 
