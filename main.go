@@ -183,10 +183,12 @@ func printPDF(documentPath, printerName string) error {
 	// または、PATH環境変数にAdobe Readerのパスが追加されている場合は "AcroRd32.exe" のみでも動作する場合があります。
 	adobeReaderPath := os.Getenv("ADOBE_READER_PATH")
 	if adobeReaderPath == "" {
-		adobeReaderPath := "C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\Acrobat.exe"                         // デフォルトパス
-		fmt.Printf("ADOBE_READER_PATH environment variable not set. Using default path: %s\n", adobeReaderPath) // デバッグ用ログ
+		adobeReaderPath := "C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\Acrobat.exe"                                      // デフォルトパス
+		fmt.Printf("ADOBE_READER_PATH environment variable not set. Using default path: %s\n", adobeReaderPath)              //
+		elog.Info(1, fmt.Sprintf("ADOBE_READER_PATH environment variable not set. Using default path: %s", adobeReaderPath)) // イベントログに追加
 	} else {
-		fmt.Printf("Using Adobe Reader path from environment variable: %s\n", adobeReaderPath) // デバッグ用ログ
+		fmt.Printf("Using Adobe Reader path from environment variable: %s\n", adobeReaderPath)              // デバッグ用ログ
+		elog.Info(1, fmt.Sprintf("Using Adobe Reader path from environment variable: %s", adobeReaderPath)) // イベントログに追加
 	}
 
 	// Adobe Readerが存在するか確認
@@ -194,6 +196,7 @@ func printPDF(documentPath, printerName string) error {
 		// PATHからAcroRd32.exeを探す（もしPATHに追加されていれば）
 		cmdPath, err := exec.LookPath("Acrobat.exe")
 		if err != nil {
+			elog.Error(1, fmt.Sprintf("Adobe Acrobat Reader (Acrobat.exe) not found at '%s' or in PATH: %v", adobeReaderPath, err)) // イベントログに追加
 			return fmt.Errorf("adobe Acrobat Reader (Acrobat.exe) not found at '%s' or in PATH: %w", adobeReaderPath, err)
 		}
 		adobeReaderPath = cmdPath // PATHで見つかったパスを使用
@@ -208,12 +211,13 @@ func printPDF(documentPath, printerName string) error {
 	// ここではシンプルに実行します。
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
-
-	fmt.Printf("Executing print command: %s %s %s %s\n", adobeReaderPath, "/t", documentPath, printerName) // デバッグ用ログ
+	elog.Info(1, fmt.Sprintf("Executing print command: %s %s %s %s", adobeReaderPath, "/t", documentPath, printerName)) // イベントログに追加
+	fmt.Printf("Executing print command: %s %s %s %s\n", adobeReaderPath, "/t", documentPath, printerName)              // デバッグ用ログ
 
 	// コマンドを実行し、完了を待ちます。
 	err := cmd.Run()
 	if err != nil {
+		elog.Error(1, fmt.Sprintf("Command execution failed: %v", err)) // イベントログに追加
 		return fmt.Errorf("command execution failed: %w", err)
 	}
 
