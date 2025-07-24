@@ -1,0 +1,63 @@
+name: Build and Release Go Service
+
+on:
+  release:
+    types: [published] # GitHub Releaseが公開されたときに実行
+
+jobs:
+  build-windows-service:
+    # セルフホストランナーを指定
+    runs-on: [self-hosted,Windows,X64,test] # Windowsセルフホストランナーで実行
+
+    permissions:
+      contents: write # リリースアセットのアップロードのために必要
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4 # リポジトリのコードをチェックアウト
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22' # 使用するGoのバージョンを指定 (例: 1.22)
+
+    - name: Set Adobe Reader Path Environment Variable
+      run: |
+        # 環境変数を設定 (ランナーマシン上の実際のパスに合わせる)
+        # この環境変数は、Goプログラムの printPDF 関数で使用されます。
+        echo "ADOBE_READER_PATH=C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe" >> $GITHUB_ENV
+      shell: powershell # PowerShellシェルを使用
+
+    - name: Build Go Service Executable
+      run: |
+        # Goサービス実行ファイルをビルド
+        # -ldflags="-H windowsgui" でコンソールウィンドウを非表示にする
+        # -o で出力ファイル名を指定
+        go build -ldflags="-H windowsgui" -o MyGoHTTPServer.exe main.go
+      shell: powershell # PowerShellシェルを使用
+
+    - name: Compress Executable
+      run: |
+        # ビルドされた実行ファイルをZIPファイルに圧縮
+        # 関連する設定ファイルなどもここに追加できます
+        Compress-Archive -Path MyGoHTTPServer.exe -DestinationPath my-go-http-service-windows.zip
+      shell: powershell # PowerShellシェルを使用
+
+    - name: Upload Release Asset
+      id: upload-release-asset # 後続のステップでこのステップの出力を参照するためにIDを設定
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # リポジトリトークン (自動で提供される)
+      with:
+        upload_url: ${{ github.event.release.upload_url }} # リリースアセットのアップロードURL
+        asset_path: ./my-go-http-service-windows.zip # アップロードするZIPファイル
+        asset_name: my-go-http-service-windows-${{ github.ref_name }}.zip # アセット名 (タグ名を含む)
+        asset_content_type: application/zip # コンテンツタイプ
+
+    # オプション: GitHub Actionsのアーティファクトとしてもアップロードしたい場合
+    # - name: Upload Artifact (Optional)
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: my-go-http-service-windows-package
+    #     path: my-go-http-service-windows.zip
+    #     retention-days: 7
