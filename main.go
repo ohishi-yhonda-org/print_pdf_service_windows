@@ -208,7 +208,7 @@ func printPDF(documentPath, printerName string) error {
 
 	// cmd.Run() はコマンドが完了するまでブロックし、GUIアプリケーションがハングするとレスポンスが返らなくなる原因になります。
 	// cmd.Start() はコマンドを非同期に開始し、すぐに処理を返すため、HTTPハンドラは即座にレスポンスを返すことができます。
-	err := cmd.Start()
+	err = cmd.Start()
 	if err != nil {
 		log.Printf("コマンドの開始に失敗しました: %v", err)
 		return fmt.Errorf("コマンドの開始に失敗しました: %w", err)
