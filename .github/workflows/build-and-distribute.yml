@@ -1,9 +1,9 @@
 name: Build and Release Go Service
 
 on:
-  release:
-    types: [published] # GitHub Releaseが公開されたときに実行
-
+    push:
+        branches:
+        - main # mainブランチへのプッシュでトリガー
 jobs:
   build-windows-service:
     # セルフホストランナーを指定
