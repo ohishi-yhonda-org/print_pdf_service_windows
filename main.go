@@ -193,7 +193,8 @@ func printPDF(documentPath, printerName string) error {
 	// documentPath も明示的に引用符で囲む。
 	// quotedDocumentPath := fmt.Sprintf(`"%s"`, documentPath)
 	// cmd := exec.Command(quotedAdobeReaderPath, "/t", quotedDocumentPath, quotedPrinterName) // すべて引用符付きの引数を渡す
-	cmd := exec.Command(adobeReaderPath, "/t", documentPath, quotedPrinterName) // すべて引用符付きの引数を渡す
+	// cmd := exec.Command(adobeReaderPath, "/t", documentPath, quotedPrinterName) // すべて引用符付きの引数を渡す
+	cmd := exec.Command("PDFtoPrinter_m.exe", documentPath, quotedPrinterName) // すべて引用符付きの引数を渡す
 
 	log.Printf("印刷コマンドを構築しました: %s %s %s %s", cmd.Args[0], cmd.Args[1], cmd.Args[2], cmd.Args[3])           // ログ出力
 	log.Printf("印刷コマンドを実行しています: %s %s %s %s", adobeReaderPath, "/t", documentPath, printerName)            // ログ出力
