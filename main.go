@@ -143,8 +143,8 @@ func printPDFHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Error: Failed to create temporary file: %v\n", err) // デバッグ用ログ
 		return
 	}
-	defer tempFile.Close()        // 関数終了時にファイルを閉じます。
-	defer os.Remove(tempFilePath) // 印刷後に一時ファイルを削除します。
+	defer tempFile.Close() // 関数終了時にファイルを閉じます。
+	// defer os.Remove(tempFilePath) // 印刷後に一時ファイルを削除します。
 
 	_, err = io.Copy(tempFile, file)
 	if err != nil {
@@ -173,6 +173,11 @@ func printPDFHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Successfully sent document '%s' to printer '%s'.", handler.Filename, printerName)
 	fmt.Println("PDF print request processed successfully.") // デバッグ用ログ
+	// ★印刷成功時にのみ一時ファイルを削除する★
+	err = os.Remove(tempFilePath)
+	if err != nil {
+		elog.Error(1, fmt.Sprintf("Failed to remove temporary file '%s': %v", tempFilePath, err))
+	}
 }
 
 // printPDF は指定されたPDFファイルを指定されたプリンターに印刷します。
